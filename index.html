@@ -1,1 +1,70 @@
-<p>Hola David</>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rankings Fetcher</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>Rankings Fetcher</h1>
+    <div id="status">Fetching data...</div>
+    <table id="rankingTable" border="1">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Level</th>
+                <th>Experience</th>
+                <th>Experience Gained Last 10 min</th>
+                <th>Experience Gained Per Second</th>
+                <th>Time of Fetch</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Data will be populated here -->
+        </tbody>
+    </table>
+    
+    <script>
+        function fetchData() {
+            $.ajax({
+                url: 'http://192.168.20.36/mu/script2.php',
+                method: 'GET',
+                success: function(response) {
+                    if (response.status === 'success') {
+                        $('#status').text('Data fetched and saved successfully at ' + new Date().toLocaleTimeString());
+                        updateTable(response.data);
+                    } else {
+                        $('#status').text('Error fetching data at ' + new Date().toLocaleTimeString());
+                    }
+                },
+                error: function() {
+                    $('#status').text('Error fetching data at ' + new Date().toLocaleTimeString());
+                }
+            });
+        }
+
+        function updateTable(data) {
+            const tbody = $('#rankingTable tbody');
+            tbody.empty();
+            data.forEach(player => {
+                const row = `<tr>
+                    <td>${player.name}</td>
+                    <td>${player.lvl}</td>
+                    <td>${player.experiencia}</td>
+                    <td>${player.exp_ganada_ultimos_10_min}</td>
+                    <td>${player.exp_ganada_por_seg.toFixed(2)}</td>
+                    <td>${player.fecha}</td>
+                </tr>`;
+                tbody.append(row);
+            });
+        }
+
+        // Fetch data immediately upon page load
+        fetchData();
+
+        // Set interval to fetch data every 10 minutes (600000 milliseconds)
+        setInterval(fetchData, 10 * 60 * 1000);
+    </script>
+</body>
+</html>
